@@ -6,7 +6,7 @@ export interface HomeProps {}
 export function Home(props: HomeProps) {
   return (
     <div className={styles['container']}>
-      <h1>Welcome to Home!</h1>
+      <h1>Welcome to Digital Drawer!</h1>
     </div>
   );
 }
