@@ -43,7 +43,6 @@ function Layout() {
         </ul>
       </nav>
 
-      <hr />
       <Outlet />
     </div>
   );

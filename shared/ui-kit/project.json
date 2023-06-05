@@ -1,0 +1,24 @@
+{
+  "name": "shared-ui-kit",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "shared/ui-kit/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["shared/ui-kit/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["coverage/shared/ui-kit"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../coverage/shared/ui-kit"
+      }
+    }
+  }
+}
