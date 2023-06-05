@@ -12,21 +12,51 @@ import ConversionHistory from './pages/conversion-history/conversion-history';
 import AboutUs from './pages/about-us/about-us';
 import Profile from './pages/profile/profile';
 import PageLayout from './components/page-layout/page-layout';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { AuthProvider } from './auth/use-auth/use-auth';
+import ProtectedRoute from './auth/protected-route/protected-route';
+import { routes } from './config/routes';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path="/" element={<PageLayout />}>
+    <Route path={routes.index} element={<PageLayout />}>
       <Route index element={<Home />} />
-      <Route path="about" element={<AboutUs />} />
-      <Route path="my-profile" element={<Profile />} />
-      <Route path="convert" element={<Convert />} />
-      <Route path="conversion-history" element={<ConversionHistory />} />
+      <Route path={routes.home} element={<Home />} />
+      <Route path={routes.about} element={<AboutUs />} />
+      <Route
+        path={routes.profile} 
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={routes.convert}
+        element={
+          <ProtectedRoute>
+            <Convert />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={routes.convesionHistory} 
+        element={
+          <ProtectedRoute>
+            <ConversionHistory />
+          </ProtectedRoute>
+        }
+      />
     </Route>
   )
 );
 
 export function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 }
 
 export default App;

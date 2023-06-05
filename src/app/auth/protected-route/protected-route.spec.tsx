@@ -1,10 +1,10 @@
 import { render } from '@testing-library/react';
 
-import LeftMenu from './left-menu';
+import ProtectedRoute from './protected-route';
 
-describe('LeftMenu', () => {
+describe('ProtectedRoute', () => {
   it('should render successfully', () => {
-    const { baseElement } = render(<LeftMenu mode='inline'/>);
+    const { baseElement } = render(<ProtectedRoute />);
     expect(baseElement).toBeTruthy();
   });
 });

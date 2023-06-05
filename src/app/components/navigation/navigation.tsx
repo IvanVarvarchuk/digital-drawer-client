@@ -1,75 +1,51 @@
+import { Container, Nav, NavDropdown, Navbar } from 'react-bootstrap';
 import styles from './navigation.module.css';
-import React, { useEffect, useState } from 'react';
-import { Layout, Button, Drawer, Menu } from 'antd';
-import LeftMenu from './left-menu/left-menu';
-import RightMenu from './right-menu/right-menu';
-import { MenuOutlined } from '@ant-design/icons';
-import { Link, useLocation } from 'react-router-dom';
+import { routes } from "../../config/routes";
+import useAuth from '../../auth/use-auth/use-auth';
 
 /* eslint-disable-next-line */
 export interface NavigationProps {}
 
-export function Navigation(props: NavigationProps) {
-  const [visible, setVisible] = useState(false);
-  const showDrawer = () => {
-    setVisible(!visible);
-  };
-
-  // If you do not want to auto-close the mobile drawer when a path is selected
-  // Delete or comment out the code block below
-  // From here
-  const { pathname: location } = useLocation();
-  useEffect(() => {
-    setVisible(false);
-  }, [location]);
-  // Upto here
-
+export function ProfileNavItem() {
+  const { userName, isAuthenticated, onLogin, onLogout, onSignUp } = useAuth();
   return (
-    <nav className={styles["navbar"]}>
-      <Layout>
-        <Layout.Header className={styles["nav-header"]}>
-          <div className={styles["logo"]}>
-            <h3 className={styles["brand-font"]}>Brand Here</h3>
-          </div>
-          <div className={styles["navbar-menu"]}>
-            <div className={styles["leftMenu"]}>
-              <LeftMenu mode={'horizontal'}>
-                <Link to="/">
-                  <Menu.Item>Home</Menu.Item>
-                </Link>
-                <Link to="/about">
-                  <Menu.Item>About Us</Menu.Item>
-                </Link>
-                <Link to="/convert">
-                  <Menu.Item>Convert</Menu.Item>
-                </Link>
-                <Link to="/conversion-history">
-                  <Menu.Item>Conversion History</Menu.Item>
-                </Link>
-              </LeftMenu>
-            </div>
-            <Button className={styles["menuButton"]} type="text" onClick={showDrawer}>
-              <MenuOutlined rev={undefined} />
-            </Button>
-            <div className={styles["rightMenu"]}>
-              <RightMenu mode={'horizontal'} />
-            </div>
-
-            <Drawer
-              title={'Brand Here'}
-              placement="right"
-              closable={true}
-              onClose={showDrawer}
-              visible={visible}
-              style={{ zIndex: 99999 }}
-            >
-              <LeftMenu mode={'inline'} />
-              <RightMenu mode={'inline'} />
-            </Drawer>
-          </div>
-        </Layout.Header>
-      </Layout>
-    </nav>
+  isAuthenticated? 
+  <Nav>
+    <NavDropdown title={userName} id="collasible-nav-dropdown">
+      <NavDropdown.Item href={routes.profile}>My profile</NavDropdown.Item>
+      <NavDropdown.Item onClick={onLogout}>
+        Logout
+      </NavDropdown.Item>
+    </NavDropdown>      
+  </Nav>
+  :
+  <Nav>
+    <NavDropdown title='Log In' id="collasible-nav-dropdown">
+      <NavDropdown.Item onClick={onLogin}>Log In</NavDropdown.Item>
+      <NavDropdown.Item onClick={onSignUp}>
+        Sign Up
+      </NavDropdown.Item>
+    </NavDropdown>      
+  </Nav>
+  );
+}
+export function Navigation(props: NavigationProps) {
+  const { isAuthenticated } = useAuth();
+  return (
+    <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+    <Container>
+      <Navbar.Brand href="\">Digital Drawer</Navbar.Brand>
+      <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+      <Navbar.Collapse id="responsive-navbar-nav">
+        <Nav className="me-auto">
+          <Nav.Link href={routes.about}>About us</Nav.Link>
+          {isAuthenticated && <Nav.Link href={routes.convert}>Convert files</Nav.Link>}
+          {isAuthenticated && <Nav.Link href={routes.convesionHistory}>Converion history</Nav.Link>}
+        </Nav>
+        <ProfileNavItem/>
+      </Navbar.Collapse>
+    </Container>
+  </Navbar>
   );
 }
 
