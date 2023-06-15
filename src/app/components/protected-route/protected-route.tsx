@@ -1,13 +1,13 @@
 import { Navigate } from "react-router-dom";
-import useAuth from "../use-auth/use-auth";
+import useAuth from "../../hooks/use-auth/use-auth";
 import { routes } from "../../config/routes";
 
 export type ProtectedRouteProps = React.PropsWithChildren;
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { token } = useAuth();
+  const { isAuthenticated } = useAuth();
 
-  if (!token) {
+  if (!isAuthenticated) {
     return <Navigate to={routes.home} replace />;
   }
 

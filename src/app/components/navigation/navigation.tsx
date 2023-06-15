@@ -1,19 +1,19 @@
 import { Container, Nav, NavDropdown, Navbar } from 'react-bootstrap';
 import styles from './navigation.module.css';
 import { routes } from "../../config/routes";
-import useAuth from '../../auth/use-auth/use-auth';
+import { useAuth } from '../../hooks/use-auth/use-auth';
 
 /* eslint-disable-next-line */
 export interface NavigationProps {}
 
 export function ProfileNavItem() {
-  const { userName, isAuthenticated, onLogin, onLogout, onSignUp } = useAuth();
+  const { user, login, signup, logout, isAuthenticated } = useAuth();
   return (
   isAuthenticated? 
   <Nav>
-    <NavDropdown title={userName} id="collasible-nav-dropdown">
+    <NavDropdown title={user?.name} id="collasible-nav-dropdown">
       <NavDropdown.Item href={routes.profile}>My profile</NavDropdown.Item>
-      <NavDropdown.Item onClick={onLogout}>
+      <NavDropdown.Item onClick={logout}>
         Logout
       </NavDropdown.Item>
     </NavDropdown>      
@@ -21,8 +21,8 @@ export function ProfileNavItem() {
   :
   <Nav>
     <NavDropdown title='Log In' id="collasible-nav-dropdown">
-      <NavDropdown.Item onClick={onLogin}>Log In</NavDropdown.Item>
-      <NavDropdown.Item onClick={onSignUp}>
+      <NavDropdown.Item onClick={login}>Log In</NavDropdown.Item>
+      <NavDropdown.Item onClick={signup}>
         Sign Up
       </NavDropdown.Item>
     </NavDropdown>      

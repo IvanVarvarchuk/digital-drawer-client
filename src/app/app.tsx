@@ -13,8 +13,8 @@ import AboutUs from './pages/about-us/about-us';
 import Profile from './pages/profile/profile';
 import PageLayout from './components/page-layout/page-layout';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { AuthProvider } from './auth/use-auth/use-auth';
-import ProtectedRoute from './auth/protected-route/protected-route';
+import { AuthProvider } from './context/auth-context/auth-context';
+import ProtectedRoute from './components/protected-route/protected-route';
 import { routes } from './config/routes';
 
 const router = createBrowserRouter(
