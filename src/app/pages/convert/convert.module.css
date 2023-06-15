@@ -5,3 +5,7 @@
  * .container {
  * }
 */
+
+.actions {
+    display: flex;
+}
