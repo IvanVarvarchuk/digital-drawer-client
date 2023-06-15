@@ -94,7 +94,7 @@ export function Convert() {
                           queue.length === 1
                             ? setQueue([])
                             : setQueue(
-                                queue.filter((f) => f?.name === file?.name)
+                                queue.filter((f) => f?.name !== file?.name)
                               );
                         }}
                       />
