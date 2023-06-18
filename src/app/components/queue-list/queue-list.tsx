@@ -1,33 +1,40 @@
-import { useEffect, useState } from 'react';
 import styles from './queue-list.module.css';
 import { Button, Card, Form } from 'react-bootstrap';
 import Spinner from 'react-bootstrap/Spinner';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import useConvertionState from '../../pages/convert/state/use-convertion-state/use-convertion-state';
+import { TargetFileFormat } from '../../pages/convert/state/convertion-reducer/convertion-reducer';
+// import useConvertionState from 'src/app/pages/convert/state/use-convertion-state/use-convertion-state';
 
 /* eslint-disable-next-line */
 export interface QueueListProps {
-  files: (File | null)[];
+  handleOnSubmit: () => void;
 }
 
-export function QueueList(props: QueueListProps) {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [fileList, setFileList] = useState<(File | null)[]>(props.files || []);
+export function QueueList({ handleOnSubmit }: QueueListProps) {
+  const { state, dispatch } = useConvertionState();
 
-  useEffect(() => {
-    setFileList(props.files || []);
-  }, [props.files]);
-
-  const handleOnSubmit = () => {
-    setIsLoading(true);
-  };
-
-  const handleDragEnd = (result: any) => {
+  const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return; // dropped outside the list
-    const items = Array.from(fileList);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-    setFileList(items);
+    
+    dispatch({ type: "REORDER_FILE", payload: {
+      oldIndex: result.source.index,
+      newIndex: result.destination.index,
+    } })
   };
+
+  const handleSelectionChanged = (index: number, value: string) => {
+    const optionMapping: Record<string, TargetFileFormat> = {
+      "0":TargetFileFormat.DXF, 
+      "1":TargetFileFormat.IFC, 
+      "2":TargetFileFormat.SVG, 
+    } 
+    dispatch({ type: 'SET_CONVERSION_FORMAT', payload: {
+      index,
+      format: optionMapping[value]
+    } });
+  } 
+
   return (
     <div>
       <h2>Conversion Queue:</h2>
@@ -35,9 +42,9 @@ export function QueueList(props: QueueListProps) {
         <Droppable droppableId="fileListDroppable">
           {(provided) => (
             <div {...provided.droppableProps} ref={provided.innerRef}>
-              {fileList.length > 0 ? (
+              {state.queue.length > 0 ? (
                 <div>
-                  {fileList.map((file, index) => (
+                  {state.queue.map((fileItem, index) => (
                     <Draggable
                       key={index}
                       draggableId={String(index)}
@@ -57,21 +64,22 @@ export function QueueList(props: QueueListProps) {
                               src={URL.createObjectURL(file!)}
                             /> */}
                             <Card.Body>
-                              <Card.Title>{file?.name}</Card.Title>
+                              <Card.Title>{fileItem.file?.name}</Card.Title>
                               <Form.Select
+                                onChange={({target}) => handleSelectionChanged(index, target.value)}
                                 aria-label="Default select example"
                                 className={styles.select}
                               >
-                                <option>Select file extension</option>
-                                <option value="1">fix</option>
-                                <option value="2">svg</option>
-                                <option value="3">icv</option>
+                                <option disabled>Select file extension</option>
+                                <option value={TargetFileFormat.DXF}>dxf</option>
+                                <option value={TargetFileFormat.IFC}>ifc</option>
+                                <option value={TargetFileFormat.SVG}>svg</option>
                               </Form.Select>
-                              {/* <div className={styles.actions}>
-                                <Button disabled={isLoading} variant="danger">
+                              <div className={styles.actions}>
+                                <Button disabled={state.isLoading} onClick={() => dispatch({ type: 'REMOVE_FILE',  payload: index})} variant="danger">
                                   Remove
                                 </Button>
-                              </div> */}
+                              </div>
                             </Card.Body>
                           </Card>
                         </div>
@@ -88,14 +96,14 @@ export function QueueList(props: QueueListProps) {
         </Droppable>
       </DragDropContext>
       <div className={styles.actions}>
-        {isLoading && (
+        {state.isLoading && (
           <Spinner animation="border" role="status">
             <span className="visually-hidden">Loading...</span>
           </Spinner>
         )}
-        <Button disabled={isLoading} onClick={handleOnSubmit} variant="success">
+        {state.queue.length > 0 && <Button disabled={state.isLoading} onClick={handleOnSubmit} variant="success">
           Submit
-        </Button>
+        </Button>}
       </div>
     </div>
   );

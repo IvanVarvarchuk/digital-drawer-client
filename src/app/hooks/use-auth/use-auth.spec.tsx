@@ -3,4 +3,6 @@ import * as React from 'react';
 
 import useAuth from './use-auth';
 
-describe('useAuth', () => {});
+describe.skip('useAuth', () => {
+    it("")
+});

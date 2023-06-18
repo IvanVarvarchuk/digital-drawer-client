@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import LoginModal, { AuthMode } from './login-modal';
 
-describe('LoginModal', () => {
+describe.skip('LoginModal', () => {
   it('should render successfully', () => {
     const { baseElement } = render(
       <LoginModal

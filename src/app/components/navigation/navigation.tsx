@@ -32,7 +32,7 @@ export function ProfileNavItem() {
 export function Navigation(props: NavigationProps) {
   const { isAuthenticated } = useAuth();
   return (
-    <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+    <Navbar className={styles.header} collapseOnSelect expand="lg" bg="dark" variant="dark">
     <Container>
       <Navbar.Brand href="\">Digital Drawer</Navbar.Brand>
       <Navbar.Toggle aria-controls="responsive-navbar-nav" />
