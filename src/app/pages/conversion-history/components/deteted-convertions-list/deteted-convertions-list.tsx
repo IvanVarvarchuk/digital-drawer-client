@@ -6,70 +6,11 @@ import { TargetFileFormat } from '../../../../pages/convert/state/convertion-red
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCancel, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FileConvertion } from '../convertions-list/convertions-list';
+import { useConversionAllQuery } from '../../../../../api/axios-client/Query';
 
-const fake: FileConvertion[] = [
-  {
-    id: '0f8fad5b-d9cb-469f-a165-70867728950e',
-    fileName: 'string1.dxf',
-    originalFileName: 'string1.png',
-    creationDate: new Date(),
-    deletionDate: new Date(),
-    targetFormat: 0,
-  },
-  {
-    id: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
-    fileName: 'string1.dxf',
-    originalFileName: 'string1.png',
-    creationDate: new Date(),
-    deletionDate: new Date(),
-    targetFormat: 0,
-  },
-  {
-    id: '0f8fad5b-d9cb-469f-a165-70867728950e',
-    fileName: 'string1.dxf',
-    originalFileName: 'string1.png',
-    creationDate: new Date(),
-    deletionDate: new Date(),
-    targetFormat: 0,
-  },
-  {
-    id: '0f8fad5b-d9cb-469f-a165-70867728950e',
-    fileName: 'string1.dxf',
-    originalFileName: 'string1.png',
-    creationDate: new Date(),
-    deletionDate: new Date(),
-    targetFormat: 0,
-  },
-  {
-    id: '0f8fad5b-d9cb-469f-a165-70867728950e',
-    fileName: 'string1.dxf',
-    originalFileName: 'string1.png',
-    creationDate: new Date(),
-    deletionDate: new Date(),
-    targetFormat: 0,
-  },
-  {
-    id: '0f8fad5b-d9cb-469f-a165-70867728950e',
-    fileName: 'string1.dxf',
-    originalFileName: 'string1.png',
-    creationDate: new Date(),
-    deletionDate: new Date(),
-    targetFormat: 0,
-  },
-];
-
-export type FileConvertion = {
-  id: string,
-  fileName: string,
-  originalFileName: string,
-  creationDate: Date,
-  deletionDate: Date,
-  targetFormat: number,
-}
-
-const useDetetedConvertionTable = () => {
-  const data = fake;
-
+const useDetetedConvertionTable = (data: FileConvertion[]) => {
+  
   const columns = React.useMemo<Column<FileConvertion>[]>(
     () => [
       {
@@ -83,22 +24,22 @@ const useDetetedConvertionTable = () => {
       },
       {
         Header: 'Original File Name',
-        accessor: 'originalFileName',
+        accessor: 'convertedFromName',
       },
       {
         Header: 'Creation Date',
-        accessor: 'creationDate',
-        Cell:({ row: { original }}) => { return (<span>{original.creationDate.toDateString()}</span>)},
+        accessor: 'conversionDate',
+        Cell:({ row: { original }}) => { return (<span>{original.conversionDate.toDateString()}</span>)},
       },
       {
         Header: 'Deletion Date',
         accessor: 'deletionDate',
-        Cell:({ row: { original }}) => { return (<span>{original.deletionDate.toDateString()}</span>)},
+        Cell:({ row: { original }}) => { return (<span>{original.deletionDate?.toDateString()}</span>)},
       },
       {
         Header: 'Target Format',
-        accessor: 'targetFormat',
-        Cell:({ row: { original }}) => { return (<span>{TargetFileFormat[original.targetFormat]}</span>)},
+        accessor: 'fileFormat',
+        Cell:({ row: { original }}) => { return (<span>{TargetFileFormat[original.fileFormat]}</span>)},
       },
       {
         Header: 'Actions',
@@ -138,7 +79,9 @@ const useDetetedConvertionTable = () => {
 }
 
 export function DetetedConvertionsList() {
-  const tableConfig = useDetetedConvertionTable();
+  const convetions = useConversionAllQuery({ isDeleted: true });
+
+  const tableConfig = useDetetedConvertionTable(convetions.data as FileConvertion[]);
   const {
     columns,
     getTableProps,
@@ -148,6 +91,7 @@ export function DetetedConvertionsList() {
     rows,
   } = tableConfig;
   return (
+    (convetions.isFetching || convetions.isLoading ) ?  <div>Loading...</div>:
     <div>
       <Table striped bordered hover {...getTableProps()}>
         <thead>
@@ -172,20 +116,6 @@ export function DetetedConvertionsList() {
           })}
         </tbody>
       </Table>
-      {/* <div>
-        <Button variant="primary" onClick={() => previousPage()} disabled={!canPreviousPage}>
-          Previous
-        </Button>
-        <Button variant="primary" onClick={() => nextPage()} disabled={!canNextPage}>
-          Next
-        </Button>
-        <span>
-          Page{' '}
-          <strong>
-            {pageIndex + 1} of {pageOptions.length}
-          </strong>{' '}
-        </span>
-      </div> */}
     </div>
   );
 };

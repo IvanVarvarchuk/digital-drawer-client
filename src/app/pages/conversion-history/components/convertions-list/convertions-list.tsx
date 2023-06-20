@@ -5,113 +5,73 @@ import { Table, Button } from 'react-bootstrap';
 import { TargetFileFormat } from '../../../../pages/convert/state/convertion-reducer/convertion-reducer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { useConversionAllQuery } from '../../../../../api/axios-client/Query';
+import * as Types from '../../../../../api/axios-client';
 
-const fake: FileConvertion[] = [
-  {
-    id: '0f8fad5b-d9cb-469f-a165-70867728950e',
-    fileName: 'string1.dxf',
-    originalFileName: 'string1.png',
-    creationDate: new Date(),
-    targetFormat: 0,
-  },
-  {
-    id: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
-    fileName: 'string1.dxf',
-    originalFileName: 'string1.png',
-    creationDate: new Date(),
-    targetFormat: 0,
-  },
-  {
-    id: '0f8fad5b-d9cb-469f-a165-70867728950e',
-    fileName: 'string1.dxf',
-    originalFileName: 'string1.png',
-    creationDate: new Date(),
-    targetFormat: 0,
-  },
-  {
-    id: '0f8fad5b-d9cb-469f-a165-70867728950e',
-    fileName: 'string1.dxf',
-    originalFileName: 'string1.png',
-    creationDate: new Date(),
-    targetFormat: 0,
-  },
-  {
-    id: '0f8fad5b-d9cb-469f-a165-70867728950e',
-    fileName: 'string1.dxf',
-    originalFileName: 'string1.png',
-    creationDate: new Date(),
-    targetFormat: 0,
-  },
-  {
-    id: '0f8fad5b-d9cb-469f-a165-70867728950e',
-    fileName: 'string1.dxf',
-    originalFileName: 'string1.png',
-    creationDate: new Date(),
-    targetFormat: 0,
-  },
-];
+export type FileConvertion = Required<Types.GetConversionQueryDto>
+// export type FileConvertion = {
+//   id: string,
+//   fileName: string,
+//   originalFileName: string,
+//   creationDate: Date,
+//   targetFormat: number,
+// }
+const useFileConvertionTableColumns = () => {
+ const columns = React.useMemo<Column<FileConvertion>[]>(
+  () => [
+    {
+      accessor: 'id',
+      Cell:({ row: { index }}) => { return (<span>{index + 1}</span>)},
+    },
+    {
+      Header: 'File Name',
+      accessor: 'fileName',
+    },
+    {
+      Header: 'Original File Name',
+      accessor: 'convertedFromName',
+    },
+    {
+      Header: 'Creation Date',
+      accessor: 'conversionDate',
+      Cell:({ row: { original }}) => { return (<span>{original?.conversionDate?.toDateString()}</span>)},
+    },
+    {
+      Header: 'Target Format',
+      accessor: 'fileFormat',
+      Cell:({ row: { original }}) => { return (<span>{Types.TargetFileFormat[original.fileFormat ?? 0]}</span>)},
+    },
+    {
+      Header: 'Actions',
+      Cell: ({ row }) => (
+        <div className={styles.actionGroup}>
+          <Button variant="danger" onClick={() => handleDelete(row.original.id)}>
+            <FontAwesomeIcon icon={faTrash} />
+          </Button>
+          <Button variant="primary" onClick={() => handleDownload(row.original.id)}>
+            <FontAwesomeIcon icon={faDownload} />
+          </Button>
+        </div>
+      ),
+    },
+  ],
+  []
+);
 
-export type FileConvertion = {
-  id: string,
-  fileName: string,
-  originalFileName: string,
-  creationDate: Date,
-  targetFormat: number,
+const handleDelete = (fileId: string) => {
+  // Delete file logic here
+  console.log('Delete file:', fileId);
+};
+
+const handleDownload = (fileId: string) => {
+  // Download fileId logic here
+  console.log('Download file:', fileId);
+};
+
+return columns;
 }
 
-const useFileConvertionTable = () => {
-  const data = fake;
-
-  const columns = React.useMemo<Column<FileConvertion>[]>(
-    () => [
-      {
-        accessor: 'id',
-        Cell:({ row: { index }}) => { return (<span>{index + 1}</span>)},
-      },
-      {
-        Header: 'File Name',
-        accessor: 'fileName',
-      },
-      {
-        Header: 'Original File Name',
-        accessor: 'originalFileName',
-      },
-      {
-        Header: 'Creation Date',
-        accessor: 'creationDate',
-        Cell:({ row: { original }}) => { return (<span>{original.creationDate.toDateString()}</span>)},
-      },
-      {
-        Header: 'Target Format',
-        accessor: 'targetFormat',
-        Cell:({ row: { original }}) => { return (<span>{TargetFileFormat[original.targetFormat]}</span>)},
-      },
-      {
-        Header: 'Actions',
-        Cell: ({ row }) => (
-          <div className={styles.actionGroup}>
-            <Button variant="danger" onClick={() => handleDelete(row.original.id)}>
-              <FontAwesomeIcon icon={faTrash} />
-            </Button>
-            <Button variant="primary" onClick={() => handleDownload(row.original.id)}>
-              <FontAwesomeIcon icon={faDownload} />
-            </Button>
-          </div>
-        ),
-      },
-    ],
-    []
-  );
-
-  const handleDelete = (fileId: string) => {
-    // Delete file logic here
-    console.log('Delete file:', fileId);
-  };
-
-  const handleDownload = (fileId: string) => {
-    // Download fileId logic here
-    console.log('Download file:', fileId);
-  };
+export const useFileConvertionTable = (data: FileConvertion[], columns: Column<FileConvertion>[]) => {
 
   return useTable<FileConvertion>(
     {
@@ -124,7 +84,9 @@ const useFileConvertionTable = () => {
 }
 
 const ConvertionsList = () => {
-  const tableConfig = useFileConvertionTable();
+  const convetions = useConversionAllQuery({ isDeleted: false });
+  const columnsConfig = useFileConvertionTableColumns();
+  const tableConfig = useFileConvertionTable(convetions.data as FileConvertion[], columnsConfig);
   const {
     columns,
     getTableProps,
@@ -134,6 +96,7 @@ const ConvertionsList = () => {
     rows,
   } = tableConfig;
   return (
+    (convetions.isFetching || convetions.isLoading ) ?  <div>Loading...</div>:
     <div>
       <Table striped bordered hover {...getTableProps()}>
         <thead>
@@ -158,20 +121,6 @@ const ConvertionsList = () => {
           })}
         </tbody>
       </Table>
-      {/* <div>
-        <Button variant="primary" onClick={() => previousPage()} disabled={!canPreviousPage}>
-          Previous
-        </Button>
-        <Button variant="primary" onClick={() => nextPage()} disabled={!canNextPage}>
-          Next
-        </Button>
-        <span>
-          Page{' '}
-          <strong>
-            {pageIndex + 1} of {pageOptions.length}
-          </strong>{' '}
-        </span>
-      </div> */}
     </div>
   );
 };

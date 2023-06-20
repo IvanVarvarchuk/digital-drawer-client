@@ -61,7 +61,7 @@ export function QueueList({ handleOnSubmit }: QueueListProps) {
                           >
                             {/* <Card.Img
                               variant="top"
-                              src={URL.createObjectURL(file!)}
+                              src={URL.createObjectURL(fileItem.file!)}
                             /> */}
                             <Card.Body>
                               <Card.Title>{fileItem.file?.name}</Card.Title>

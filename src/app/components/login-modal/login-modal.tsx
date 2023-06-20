@@ -3,7 +3,7 @@ import { Modal } from 'react-bootstrap';
 import styles from './login-modal.module.css';
 import useAuth from '../../hooks/use-auth/use-auth';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { ILoginCommand, IRegisterCommand } from '../../api/axios-client';
+import { ILoginCommand, IRegisterCommand } from '../../../api/axios-client';
 
 
 export enum AuthMode { LogIn, SignUp };
@@ -37,7 +37,7 @@ export function LoginModal({
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <AuthModalFormContex.Provider value={{changeAuthMode}}>
+          <AuthModalFormContex.Provider value={{changeAuthMode, handleClose}}>
             {_authMode === AuthMode.LogIn? 
               <LoginModalForm /> : <SignUpModalForm/>}
           </AuthModalFormContex.Provider>
@@ -47,24 +47,26 @@ export function LoginModal({
 }
 interface AuthModalFormContexType {
   changeAuthMode: () => void,
+  handleClose: () => void,
 }
 
 const AuthModalFormContex = React.createContext<AuthModalFormContexType>({} as AuthModalFormContexType);
 const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
 export const LoginModalForm = () => {
-  const { changeAuthMode } = React.useContext(AuthModalFormContex);
+  const { changeAuthMode, handleClose } = React.useContext(AuthModalFormContex);
   const {login} = useAuth();
   const { register, formState: { errors }, handleSubmit } = useForm<ILoginCommand>()
   
   const submit: SubmitHandler<ILoginCommand> = async (data) => {
-    if(data?.email && data?.password) await login(data.email, data.password)
+    if(data?.email && data?.password) {
+      await login(data.email, data.password)
+      handleClose();}
   };
 
   return (
       <form className={styles.authForm} onSubmit={handleSubmit(submit)}>
         <div className={styles.authFormContent}>
-          <h3 className={styles.authFormTitle}>Sign In</h3>
           <div className="text-center">
             Not registered yet?{" "}
             <span className="link-primary" onClick={changeAuthMode}>
@@ -102,19 +104,19 @@ export const LoginModalForm = () => {
 
 }
 export const SignUpModalForm = () => {
-  const { changeAuthMode } = React.useContext(AuthModalFormContex);
+  const { changeAuthMode, handleClose } = React.useContext(AuthModalFormContex);
   const { singUp } = useAuth();
   const { register, formState: { errors }, handleSubmit } = useForm<IRegisterCommand>()
   
   const submit: SubmitHandler<IRegisterCommand> = async (data) => {
     if(data?.userName, data?.email && data?.password) {
       await singUp(data.userName, data.email, data.password)
+      handleClose();
     }
   };
   return (
       <form className={styles.authForm} onSubmit={handleSubmit(submit)}>
         <div className={styles.authFormContent}>
-          <h3 className={styles.authFormTitle}>Sign In</h3>
           <div className="text-center">
             Already registered?{" "}
             <span className="link-primary" onClick={changeAuthMode}>

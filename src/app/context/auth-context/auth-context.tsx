@@ -2,8 +2,8 @@ import React, { FC, PropsWithChildren, useEffect, useState } from "react";
 import axios from 'axios';
 import type { InternalAxiosRequestConfig } from 'axios';
 
-import { useLoginMutation, useProfileGETQuery, useRegisterMutation } from "../../api/axios-client/Query";
-import { LoginCommand, ProfileInfoDto, RegisterCommand, getAxios } from "../../api/axios-client";
+import { useLoginMutation, useProfileGETQuery, useRegisterMutation } from '../../../api/axios-client/Query';
+import { LoginCommand, ProfileInfoDto, RegisterCommand } from "../../../api/axios-client";
 import { useLocalStorage } from "usehooks-ts";
 
 export interface IAuthContext {
@@ -18,9 +18,8 @@ export interface IAuthContext {
 export const AuthContext = React.createContext<IAuthContext>({} as IAuthContext);
 
 export function AuthProvider({ children }: PropsWithChildren) {
-  const [accessToken, setAccessToken] = useLocalStorage<string|undefined>('token', undefined);
+  const [accessToken, setAccessToken] = useLocalStorage<string|undefined|null>('token', undefined);
   const [tokenExpires, setTokenExpires] = React.useState<string>();
-  const [user, setUser] = React.useState<ProfileInfoDto|undefined>(undefined);
   const loginQuery = useLoginMutation({
     onSuccess: (data) => {
       // here we rely on the returned data contains the user, the token and its expiration date.
@@ -38,10 +37,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const profileQuery = useProfileGETQuery({
     enabled: !!accessToken,
-    onSuccess: (data) => {
-        setUser(data);
-    },
-  }, { headers: { Authorization: `Bearer ${accessToken}`}})
+  })
 
   const login = async (email: string, password: string) => {
     await loginQuery.mutateAsync(new LoginCommand({ email, password }));
@@ -55,34 +51,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const logout = () => {
     setAccessToken(undefined);
-    setUser(undefined);
   }
 
-  // useEffect(() => {
-  //   // add authorization token to each request
-  //   const authInterseptor = getAxios().interceptors.request.use(
-  //     (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-  //       // config.baseURL = 'https://localhost:7101/';
-  //       config.headers.authorization = `Bearer ${accessToken}`;
-  //       // this is important to include the cookies when we are sending the requests to the backend.
-  //       config.withCredentials = true;
-  //       return config;
-  //     }
-  //   );
-
-  //   // axios.interceptors.response.use(
-  //   //   (response) => response,
-  //   //   async (error) => {
-  //   //     return Promise.reject(error);
-  //   //   }
-  //   // );
-
-  //   // configure axios-hooks to use this instance of axios
-  //   getAxios().interceptors.request.eject(authInterseptor);
-  // }, [accessToken]);
-
-  const isSuccess = loginQuery.isSuccess || profileQuery.isSuccess;
-  const isAuthenticated = isSuccess && !!accessToken;
+  const isAuthenticated = !!accessToken;
   // if you need a user object you can do something like this.
   // const user = profileQuery.data;
   // example on provider
@@ -90,7 +61,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     <AuthContext.Provider
       value={{
         isAuthenticated,
-        user,
+        user: profileQuery.data && accessToken? profileQuery.data : undefined,
         login,
         singUp,
         logout,
