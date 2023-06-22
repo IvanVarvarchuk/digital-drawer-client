@@ -5,6 +5,17 @@
  * .container {
  * }
 */
+.dropzone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 16rem;
+    width: 28rem;
+    max-width: 100%;
+    text-align: center;
+    position: relative;
+    flex-direction: column;
+}
 
 .actions {
     display: flex;

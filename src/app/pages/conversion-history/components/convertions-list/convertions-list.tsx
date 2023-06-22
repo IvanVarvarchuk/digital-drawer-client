@@ -9,6 +9,7 @@ import { useConversionAllQuery } from '../../../../../api/axios-client/Query';
 import * as Types from '../../../../../api/axios-client';
 
 export type FileConvertion = Required<Types.GetConversionQueryDto>
+
 // export type FileConvertion = {
 //   id: string,
 //   fileName: string,
@@ -76,7 +77,7 @@ export const useFileConvertionTable = (data: FileConvertion[], columns: Column<F
   return useTable<FileConvertion>(
     {
       columns,
-      data,
+      data: data ?? [],
     },
     useFlexLayout,
     useSortBy,

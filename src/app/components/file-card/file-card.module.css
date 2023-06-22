@@ -1,0 +1,31 @@
+/*
+ * Replace this with your own classes
+ *
+ * e.g.
+ * .container {
+ * }
+*/
+.customLink {
+  text-decoration: none;
+  color: inherit;
+  cursor: default;
+}
+
+.card {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 300px;
+}
+.cardBody {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.cardBody p {
+    font-size: larger;
+}
+

@@ -37,7 +37,9 @@ export function QueueList({ handleOnSubmit }: QueueListProps) {
 
   return (
     <div>
-      <h2>Conversion Queue:</h2>
+      <h4>Conversion Queue:</h4>
+      <div className={`${styles.queueListContainer} ${styles.containerScroll} gap-2`}>
+
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="fileListDroppable">
           {(provided) => (
@@ -56,22 +58,26 @@ export function QueueList({ handleOnSubmit }: QueueListProps) {
                           {...provided.draggableProps}
                         >
                           <Card
-                            style={{ marginBottom: '20px' }}
+                            className={styles.fileCard}
                             {...provided.dragHandleProps}
                           >
                             {/* <Card.Img
                               variant="top"
+                              style={{
+                                maxWidth: '100px',
+                                aspectRatio: '1/1'
+                              }}
                               src={URL.createObjectURL(fileItem.file!)}
                             /> */}
-                            <Card.Body>
+                            <Card.Body className={styles.fileCardBody}>
                               <Card.Title>{fileItem.file?.name}</Card.Title>
                               <Form.Select
                                 onChange={({target}) => handleSelectionChanged(index, target.value)}
                                 aria-label="Default select example"
                                 className={styles.select}
                               >
-                                <option disabled>Select file extension</option>
-                                <option value={TargetFileFormat.DXF}>dxf</option>
+                                <option>Select file extension</option>
+                                <option defaultChecked value={TargetFileFormat.DXF}>dxf</option>
                                 <option value={TargetFileFormat.IFC}>ifc</option>
                                 <option value={TargetFileFormat.SVG}>svg</option>
                               </Form.Select>
@@ -89,21 +95,22 @@ export function QueueList({ handleOnSubmit }: QueueListProps) {
                 </div>
               ) : (
                 <p>No files currently in queue.</p>
-              )}
+                )}
               {provided.placeholder}
             </div>
           )}
         </Droppable>
       </DragDropContext>
+      </div>
       <div className={styles.actions}>
         {state.isLoading && (
           <Spinner animation="border" role="status">
             <span className="visually-hidden">Loading...</span>
           </Spinner>
         )}
-        {state.queue.length > 0 && <Button disabled={state.isLoading} onClick={handleOnSubmit} variant="success">
+        {/* {state.queue.length > 0 && <Button disabled={state.isLoading} onClick={handleOnSubmit} variant="success">
           Submit
-        </Button>}
+        </Button>} */}
       </div>
     </div>
   );

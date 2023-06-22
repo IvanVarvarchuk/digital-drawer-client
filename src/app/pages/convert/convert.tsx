@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { MouseEventHandler, useRef, useState } from 'react';
 import {
   Container,
   Row,
@@ -14,6 +14,7 @@ import CloseButton from 'react-bootstrap/CloseButton';
 import useConvertionState, {
   ConvertionContextProvider,
 } from './state/use-convertion-state/use-convertion-state';
+import FileCard from '../../components/file-card/file-card';
 
 export default function Convert() {
   return (
@@ -23,14 +24,70 @@ export default function Convert() {
   );
 }
 
+const filesToDownload: ConvertionResult[] = [
+  {
+    name: 'flourPlan.ifc',
+    link: '',
+  },
+  {
+    name: '4flourPlan.dxf',
+    link: '',
+  },
+  {
+    name: 'buildingDraft.ifc',
+    link: '',
+  },
+  {
+    name: 'appartmentDrawing.svg',
+    link: '',
+  },
+];
+
+interface IUpploadButtonProps {
+  content?: string;
+  onClick: MouseEventHandler<HTMLButtonElement>;
+}
+const UpploadButton = ({ content, onClick }: IUpploadButtonProps) => {
+  return (
+    <Button variant="outlined-primaty" onClick={onClick} size="lg">
+      {content ?? 'Upload your image files'}
+    </Button>
+  );
+};
+
+type ConvertionResult = Record<'name' | 'link', string>;
 export function ConvertPageContent() {
   const { state, dispatch } = useConvertionState();
   const [progress, setProgress] = useState(0);
+  const [results, setResults] = useState<ConvertionResult[]>([]);
+  const checkExtensions = (files: FileList) => {
+    const allowedTypes = ['image/png', 'image/jpeg'];
+    if (Array.from(files).some((f) => !allowedTypes.includes(f.type))) {
+      alert('Only PNG, JPEG, and JPG files are allowed');
+      return false;
+    }
+    return true;
+  };
+  const checkDataTransferExtensions = (dataTransfer: DataTransferItemList) => {
+    const allowedTypes = ['image/png', 'image/jpeg'];
+    const files = Array.from(dataTransfer)
+      .filter((i) => i.kind === 'file')
+      .map((i) => i.getAsFile());
+    if (files.some((f) => f && !allowedTypes.includes(f.type))) {
+      alert('Only PNG, JPEG, and JPG files are allowed');
+      return false;
+    }
+    return true;
+  };
 
   const handleDropFile = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const files: File[] = [];
-
+    if (
+      !checkExtensions(event.dataTransfer.files) ||
+      !checkDataTransferExtensions(event.dataTransfer.items)
+    ) {
+      return;
+    }
     if (event.dataTransfer.items) {
       // Use DataTransferItemList interface to access the file(s)
       for (let i = 0; i < event.dataTransfer.items.length; i++) {
@@ -38,7 +95,6 @@ export function ConvertPageContent() {
           const file = event.dataTransfer.items[i].getAsFile();
           if (file !== null) {
             dispatch({ type: 'ADD_FILE', payload: file });
-            files.push(file);
           }
         }
       }
@@ -46,8 +102,9 @@ export function ConvertPageContent() {
       // Use DataTransfer interface to access the file(s)
       for (let i = 0; i < event.dataTransfer.files.length; i++) {
         const file = event.dataTransfer.files[i];
-        dispatch({ type: 'ADD_FILE', payload: file });
-        files.push(file);
+        if (file !== null) {
+          dispatch({ type: 'ADD_FILE', payload: file });
+        }
       }
     }
   };
@@ -59,68 +116,102 @@ export function ConvertPageContent() {
     }
   };
 
+  const updateResults = (i: number) => {
+    setResults((prev) => [...prev, filesToDownload[i]]);
+    dispatch({ type: 'REMOVE_FILE', payload: 0 });
+  };
   const handleConvert = () => {
     // Logic to add file to conversion queue and initiate conversion
-    const filename = state.file ? state.file.name : 'Untitled';
     dispatch({ type: 'REMOVE_FILE', payload: 0 });
+    setResults([]);
     setProgress(0);
     setTimeout(() => {
+      updateResults(0);
       // Mock conversion progress update
-      setProgress(20);
+      setProgress(25);
       setTimeout(() => {
-        setProgress(40);
+        updateResults(1);
+        setProgress(50);
         setTimeout(() => {
-          setProgress(60);
+          updateResults(2);
+          setProgress(75);
           setTimeout(() => {
-            setProgress(80);
-            setTimeout(() => {
-              setProgress(100);
-              dispatch({ type: 'SET_IS_LOADING', payload: false });
-            }, 500);
-          }, 500);
-        }, 500);
-      }, 500);
+            updateResults(3);
+            setProgress(100);
+          }, 1000);
+        }, 800);
+      }, 800);
     }, 1000);
   };
-
-  const convertionEnabled = state.queue?.every((f) => f.targetFormatt);
+  const ref = useRef<HTMLInputElement>(null);
+  const handleClick = () => {
+    ref.current?.click();
+  };
+  const convertionEnabled =
+    state.queue.length > 0 &&
+    state.queue?.every((f) => f.targetFormatt !== undefined);
   return (
-    <Container>
-      <h4>Upload your files to convert them!</h4>
-      <Row className="my-5" gap={3}>
-        <Col className="border rounded p-3" sm={6}>
-          <div
-            onDrop={handleDropFile}
-            onDragOver={(event) => event.preventDefault()}
-            className={`${styles['dropzone']} text-center`}
-          >
-            <p>Drag and drop a file here, or click to select a file.</p>
-            <FormControl
-              type="file"
-              accept="image/png, image/jpeg"
-              multiple
-              placeholder="files"
-              onChange={handleSelectFile}
-            />
+    <Container fluid className="d-flex flex-column gap-2 max-vh-90">
+      <Row className="row-eq-height min-vh-50">
+        <Col sm={6} className="d-flex flex-column justify-content-center">
+          <h4>File Upload:</h4>
+          <div className="d-flex flex-column align-items-center">
+            <div
+              onDrop={handleDropFile}
+              onDragOver={(event) => event.preventDefault()}
+              className={`${styles.dropzone} text-center`}
+            >
+              <p>Drag and drop a file here, or click to select a file.</p>
+              <FormControl
+                hidden
+                type="file"
+                ref={ref}
+                accept="image/png, image/jpeg"
+                multiple
+                placeholder="files"
+                onChange={handleSelectFile}
+              />
+              <UpploadButton
+                onClick={handleClick}
+                content={
+                  state.queue.length
+                    ? `Uploaded ${state.queue.length} files`
+                    : undefined
+                }
+              />
+            </div>
+            {convertionEnabled && (
+              <Button
+                style={{ width: '200px' }}
+                disabled={state.isLoading}
+                onClick={handleConvert}
+                variant="success"
+              >
+                Submit
+              </Button>
+            )}
           </div>
-          {convertionEnabled && <Button onClick={handleConvert}>Convert</Button>}
         </Col>
-
-        <Col className="border rounded p-3" sm={6}>
+        <Col sm={6} className="max-vh-40">
+          {/* Second Column */}
           <QueueList handleOnSubmit={handleConvert}></QueueList>
         </Col>
       </Row>
-
-      {progress > 0 && progress < 100 && (
-        <div className="mt-5">
-          <h4>Conversion Progress:</h4>
-          <ProgressBar now={progress} label={`${progress}%`} />
-        </div>
-      )}
-
-      <Row className="my-5">
-        <h4>Conversion Results:</h4>
-        {/* Logic to display links to converted files */}
+      <Row className="row-eq-height min-vh-40">
+        <Col sm={12}>
+          <h4>Conversion Results:</h4>
+          {/* {progress > 0 && progress < 100 && (
+            <div className="mt-5 py-3 px-2 gap-2">
+              <h4>Conversion Progress:</h4>
+              <ProgressBar now={progress} label={`${progress}%`} />
+            </div>
+          )} */}
+          <Row className="gap-4">
+            {results.map((x) => (
+              <FileCard {...x} />
+            ))}
+          </Row>
+        </Col>
       </Row>
     </Container>
   );

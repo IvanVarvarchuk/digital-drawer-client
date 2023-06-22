@@ -1,14 +1,29 @@
 select {
     margin: 20px 0px;
 }
-
+.containerScroll {
+    max-height: 450px; /* Задайте бажану максимальну висоту контейнера */
+    overflow-y: auto; /* Додає панель прокрутки при перевищенні висоти */
+  }
+.fileCard {
+    margin-bottom: 20px;
+}
+.fileCardBody {
+    display: flex;
+    flex-direction: row; 
+    gap: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
 .actions {
     display: flex;
     margin-top: 20px;
     /* justify-content: space-between; */
     gap: 20px;
 }
-
+.queueListContainer {
+    overflow-y: auto;
+}
 .cardContainer{
     margin-bottom: 10px;
 }

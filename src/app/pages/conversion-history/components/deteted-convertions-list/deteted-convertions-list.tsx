@@ -71,7 +71,7 @@ const useDetetedConvertionTable = (data: FileConvertion[]) => {
   return useTable<FileConvertion>(
     {
       columns,
-      data,
+      data: data ?? [],
     },
     useFlexLayout,
     useSortBy,
