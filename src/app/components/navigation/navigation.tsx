@@ -22,12 +22,12 @@ export function ProfileNavItem() {
   } = useBoolean(true);
 
   const openLoginModal = () => {
-    showModal();
     setLoginMode();
+    showModal();
   };
   const openSignUpModal = () => {
-    showModal();
     setSignUpMode();
+    showModal();
   };
 
   return isAuthenticated ? (
@@ -46,7 +46,7 @@ export function ProfileNavItem() {
         </NavDropdown>
       </Nav>
       <LoginModal
-        authMode={isLoginMode ? AuthMode.LogIn : AuthMode.SignUp}
+        authMode={isLoginMode}
         showModal={isLoginMoalVisible}
         handleClose={hideLoginModal}
       />

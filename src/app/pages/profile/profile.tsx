@@ -1,61 +1,114 @@
 import styles from './profile.module.css';
 import { useState } from 'react';
-import { Form, Button, Container, Row, Col } from 'react-bootstrap';
+import { Form, Button, Container, Row, Col, Accordion } from 'react-bootstrap';
 import useAuth from '../../hooks/use-auth/use-auth';
+import ApiKeyAccordion from '../../components/api-key-accordion/api-key-accordion';
+import {
+  Client,
+  profilePATCHMutationKey,
+  useProfilePATCHMutation,
+} from '../../../api/axios-client/Query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  IUpdateProfileInfoCommand,
+  UpdateProfileInfoCommand,
+} from '../../../api/axios-client';
+import { useForm } from 'react-hook-form';
+const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
 export function Profile() {
   const { user } = useAuth();
-  const [userName, setUserName] = useState(user?.userName);
-  const [email, setEmail] = useState(user?.email);
-  const [apiKey, setApiKey] = useState('');
-
-  const handleUpdateProfile = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    // Logic to update profile data
-  };
-
-  const handleGenerateApiKey = () => {
-    // Logic to generate new API key
-    setApiKey('abc123'); // Example key
+  const queryClient = useQueryClient();
+  const updateProfileMutation = useProfilePATCHMutation({
+    onSuccess: () =>
+      queryClient.invalidateQueries([...profilePATCHMutationKey()]),
+  });
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm<IUpdateProfileInfoCommand>();
+  const updateProfile = async (command: IUpdateProfileInfoCommand) => {
+    await updateProfileMutation.mutateAsync(
+      new UpdateProfileInfoCommand(command)
+    );
   };
 
   return (
-    <Container>
-      <h1>Manage Account</h1>
-      <Form onSubmit={handleUpdateProfile}>
-        
-        <Row className="mb-3">
-          <Form.Label column sm="2">
-            Last Name:
-          </Form.Label>
-          <Col sm="10">
-            <Form.Control type="text" value={userName} onChange={(event) => setUserName(event.target.value)} />
-          </Col>
-        </Row>
+    <Container className="d-flex flex-column gap-3">
+      <h4>Manage Account</h4>
+      <Accordion defaultActiveKey="0" flush>
+        <Accordion.Item eventKey="0">
+          <Accordion.Header>Edit Profile</Accordion.Header>
+          <Accordion.Body className="gap-3">
+            <Form onSubmit={handleSubmit(updateProfile)}>
+              <Row className="mb-3">
+                <Form.Label column sm="2">
+                  New email:
+                </Form.Label>
+                <Col sm="10">
+                  <Form.Control
+                    type="email"
+                    {...register('newEmail', {
+                      required: false,
+                      pattern: emailRegex,
+                    })}
+                  />
+                  <p>{errors.newEmail?.message}</p>
+                </Col>
+              </Row>
 
-        <Row className="mb-3">
-          <Form.Label column sm="2">
-            Email:
-          </Form.Label>
-          <Col sm="10">
-            <Form.Control type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
-          </Col>
-        </Row>
+              <Row className="mb-3">
+                <Form.Label column sm="2">
+                  Current Password:
+                </Form.Label>
+                <Col sm="10">
+                  <Form.Control
+                    type="password"
+                    {...register('currentPassword', {
+                      required: false,
+                      minLength: 10,
+                      maxLength: 25,
+                    })}
+                    />
+                    <p>{errors.currentPassword?.message}</p>
+                  <Form.Text id="passwordHelpBlock" muted>
+                    Your password must be 8-20 characters long, contain letters
+                    and numbers, and must not contain spaces, special
+                    characters, or emoji.
+                  </Form.Text>
+                </Col>
+              </Row>
 
-        <Button type="submit">Save Changes</Button>
-      </Form>
+              <Row className="mb-3">
+                <Form.Label column sm="2">
+                  New Password:
+                </Form.Label>
+                <Col sm="10">
+                  <Form.Control
+                    type="password"
+                    {...register('newPassword', {
+                      required: true,
+                      minLength: 10,
+                      maxLength: 25,
+                    })}
+                    />
+                    <p>{errors.newPassword?.message}</p>
+                  <Form.Text id="passwordHelpBlock" muted>
+                    Your password must be 8-20 characters long, contain letters
+                    and numbers, and must not contain spaces, special
+                    characters, or emoji.
+                  </Form.Text>
+                </Col>
+              </Row>
 
-      <div className="mt-3">
-        <h2>API Key:</h2>
-        {apiKey ? (
-          <>
-            <p>Your API key is: <span>{apiKey}</span></p>
-            <Button variant="secondary" onClick={handleGenerateApiKey}>Generate New Key</Button>
-          </>
-        ) : (
-          <Button onClick={handleGenerateApiKey}>Generate API Key</Button>
-        )}
-      </div>
+              <Button type="submit">Save Changes</Button>
+            </Form>
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
+
+      <ApiKeyAccordion />
     </Container>
   );
 }

@@ -6,9 +6,8 @@ describe.skip('LoginModal', () => {
     const { baseElement } = render(
       <LoginModal
         showModal={true}
-        authMode={AuthMode.LogIn}
+        authMode={true}
         handleClose={() => null }
-        handleSubmit={() => null }
       />
     );
     expect(baseElement).toBeTruthy();
@@ -18,9 +17,8 @@ describe.skip('LoginModal', () => {
     const { getByText } = render(
       <LoginModal
         showModal={true}
-        authMode={AuthMode.SignUp}
+        authMode={false}
         handleClose={() => null }
-        handleSubmit={() => null }
       />
     );
 
@@ -33,9 +31,8 @@ describe.skip('LoginModal', () => {
     const { getByTestId } = render(
       <LoginModal
         showModal={true}
-        authMode={AuthMode.LogIn}
+        authMode={true}
         handleClose={handleClose}
-        handleSubmit={() => null }
       />
     );
 
@@ -50,9 +47,8 @@ describe.skip('LoginModal', () => {
     const { getByTestId } = render(
       <LoginModal
         showModal={true}
-        authMode={AuthMode.LogIn}
+        authMode={true}
         handleClose={() => null }
-        handleSubmit={handleSubmit}
       />
     );
 

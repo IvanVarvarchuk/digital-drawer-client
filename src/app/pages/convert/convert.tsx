@@ -15,6 +15,7 @@ import useConvertionState, {
   ConvertionContextProvider,
 } from './state/use-convertion-state/use-convertion-state';
 import FileCard from '../../components/file-card/file-card';
+import { files } from '../fakeData';
 
 export default function Convert() {
   return (
@@ -24,24 +25,10 @@ export default function Convert() {
   );
 }
 
-const filesToDownload: ConvertionResult[] = [
-  {
-    name: 'flourPlan.ifc',
-    link: '',
-  },
-  {
-    name: '4flourPlan.dxf',
-    link: '',
-  },
-  {
-    name: 'buildingDraft.ifc',
-    link: '',
-  },
-  {
-    name: 'appartmentDrawing.svg',
-    link: '',
-  },
-];
+const filesToDownload: ConvertionResult[] = files.map(({ fileName, link }) => ({
+  name: fileName ?? '',
+  link,
+}));
 
 interface IUpploadButtonProps {
   content?: string;
@@ -198,19 +185,21 @@ export function ConvertPageContent() {
         </Col>
       </Row>
       <Row className="row-eq-height min-vh-40">
-        <Col sm={12}>
-          <h4>Conversion Results:</h4>
-          {/* {progress > 0 && progress < 100 && (
-            <div className="mt-5 py-3 px-2 gap-2">
-              <h4>Conversion Progress:</h4>
-              <ProgressBar now={progress} label={`${progress}%`} />
-            </div>
-          )} */}
-          <Row className="gap-4">
+        <Col sm={12} className="d-flex flex-column gap-2">
+          <Row>
+            <h4>Conversion Results:</h4>
+            {progress > 0 && progress < 100 && (
+              <div className="mt-5 py-3 px-2 gap-2">
+                <h4>Conversion Progress:</h4>
+                <ProgressBar now={progress} label={`${progress}%`} />
+              </div>
+            )}
+          </Row>
+          <div className="d-flex flex-row gap-2">
             {results.map((x) => (
               <FileCard {...x} />
             ))}
-          </Row>
+          </div>
         </Col>
       </Row>
     </Container>

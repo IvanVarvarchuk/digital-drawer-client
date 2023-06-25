@@ -17,7 +17,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  width: 300px;
+  max-width: 300px;
 }
 .cardBody {
   display: flex;

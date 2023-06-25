@@ -5,8 +5,3 @@
  * .container {
  * }
 */
-.actionGroup {
-  display: 'flex';
-  flex-direction: 'row';
-  align-items: 'space-between';
-}

@@ -1,12 +1,14 @@
 import { Button, Container, Row, Col } from 'react-bootstrap';
 import styles from './home.module.css';
+import LoginModal from '../../components/login-modal/login-modal';
+import { useBoolean } from 'usehooks-ts';
 
 function Home() {
+  const {value: isModalVisible, setFalse: hide, setTrue: show } = useBoolean(false);
   return (
     <Row md={2}>
-        <Col>
-          <Col className={styles.text}>
-
+      <Col>
+        <Col className={styles.text}>
           <h1>Welcome to Digital Drawer!</h1>
           <p>
             Welcome to our file conversion web service! We specialize in
@@ -20,14 +22,20 @@ function Home() {
             realm.
           </p>
           <p style={{ display: 'flex', alignItems: 'center' }}>
-            <Button size="lg" variant="dark">
+            <Button size="lg" variant="dark" onClick={show}>
               Log in
             </Button>
           </p>
-          </Col>
         </Col>
-        <img className={styles.image} src='./buildingsLanding.jpg' style={{ objectFit: 'scale-down', zIndex: -1 }}/> 
-      </Row>
+      </Col>
+      <img
+        alt="landingImage"
+        className={styles.image}
+        src="./buildingsLanding.jpg"
+        style={{ objectFit: 'scale-down', zIndex: -1 }}
+      />
+      <LoginModal authMode handleClose={hide} showModal={isModalVisible}/>
+    </Row>
   );
 }
 
