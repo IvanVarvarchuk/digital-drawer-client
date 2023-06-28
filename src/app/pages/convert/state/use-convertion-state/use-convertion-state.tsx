@@ -14,6 +14,7 @@ import reducer, {
 const initialState: ConvertionReducerState = {
   file: null,
   queue: [],
+  taskId: null,
   isLoading: false,
 };
 

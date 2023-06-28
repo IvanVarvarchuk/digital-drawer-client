@@ -1,4 +1,4 @@
-import { MouseEventHandler, useRef, useState } from 'react';
+import { MouseEventHandler, useEffect, useRef, useState } from 'react';
 import {
   Container,
   Row,
@@ -16,6 +16,11 @@ import useConvertionState, {
 } from './state/use-convertion-state/use-convertion-state';
 import FileCard from '../../components/file-card/file-card';
 import { files } from '../fakeData';
+import * as Types from '../../../api/axios-client';
+import {
+  useConversionMutation,
+  useConvertionResultsQuery,
+} from '../../../api/axios-client/Query';
 
 export default function Convert() {
   return (
@@ -47,6 +52,70 @@ export function ConvertPageContent() {
   const { state, dispatch } = useConvertionState();
   const [progress, setProgress] = useState(0);
   const [results, setResults] = useState<ConvertionResult[]>([]);
+  const createConvertionTaskMutation = useConversionMutation({
+    onSuccess: (id) => dispatch({ type: 'SET_TASK_ID', payload: id }),
+  });
+  const convertionResults = useConvertionResultsQuery(
+    { id: state.taskId ?? '' },
+    {
+      enabled: !!state.taskId,
+      refetchInterval: state.queue.length > 0 ? 1000 : false,
+    }
+  );
+
+  useEffect(() => {
+    convertionResults.data?.forEach((result) => {
+      const index = state.queue.findIndex(
+        ({ file }) => file.name === result.fileName
+      );
+      if (index !== -1) {
+        dispatch({ type: 'REMOVE_FILE', payload: index });
+      }
+    });
+  }, [convertionResults.data, dispatch, state.queue]);
+
+  const toBase64 = (file: File): string => {
+    let result  = '';
+    if (file) {
+      const filereader = new FileReader();
+      filereader.readAsDataURL(file);
+      filereader.onload = function (evt) {
+        const base64 = evt?.target?.result ?? '';
+        result = base64.toString();
+        return base64;
+      };
+    }
+    return result;
+  };
+  // new Promise((resolve, reject) => {
+  //   const reader = new FileReader();
+  //   reader.readAsDataURL(file);
+  //   reader.onload = () => {
+  //     let encoded =
+  //       reader?.result?.toString().replace(/^data:(.*,)?/, '') ?? '';
+  //     if (encoded.length % 4 > 0) {
+  //       encoded += '='.repeat(4 - (encoded.length % 4));
+  //     }
+  //     resolve(encoded);
+  //   };
+  //   reader.onerror = error => reject(error);
+  // });
+
+  const formatRequest = (): Types.CreateConversionRequest[] => {
+    const result: Types.CreateConversionRequest[] = [];
+    for (const f of state.queue) {
+      const b64 = toBase64(f.file);
+      result.push(
+        new Types.CreateConversionRequest({
+          fileContent: b64,
+          fileName: f.file.name,
+          fileTargetFormat: f.targetFormatt,
+        })
+      );
+    }
+    return result;
+  };
+
   const checkExtensions = (files: FileList) => {
     const allowedTypes = ['image/png', 'image/jpeg'];
     if (Array.from(files).some((f) => !allowedTypes.includes(f.type))) {
@@ -103,32 +172,30 @@ export function ConvertPageContent() {
     }
   };
 
-  const updateResults = (i: number) => {
-    setResults((prev) => [...prev, filesToDownload[i]]);
-    dispatch({ type: 'REMOVE_FILE', payload: 0 });
-  };
-  const handleConvert = () => {
+  const handleConvert = async () => {
+    const request = await formatRequest();
     // Logic to add file to conversion queue and initiate conversion
-    dispatch({ type: 'REMOVE_FILE', payload: 0 });
-    setResults([]);
-    setProgress(0);
-    setTimeout(() => {
-      updateResults(0);
-      // Mock conversion progress update
-      setProgress(25);
-      setTimeout(() => {
-        updateResults(1);
-        setProgress(50);
-        setTimeout(() => {
-          updateResults(2);
-          setProgress(75);
-          setTimeout(() => {
-            updateResults(3);
-            setProgress(100);
-          }, 1000);
-        }, 800);
-      }, 800);
-    }, 1000);
+    await createConvertionTaskMutation.mutateAsync(request);
+    // dispatch({ type: 'REMOVE_FILE', payload: 0 });
+    // setResults([]);
+    // setProgress(0);
+    // setTimeout(() => {
+    //   updateResults(0);
+    //   // Mock conversion progress update
+    //   setProgress(25);
+    //   setTimeout(() => {
+    //     updateResults(1);
+    //     setProgress(50);
+    //     setTimeout(() => {
+    //       updateResults(2);
+    //       setProgress(75);
+    //       setTimeout(() => {
+    //         updateResults(3);
+    //         setProgress(100);
+    //       }, 1000);
+    //     }, 800);
+    //   }, 800);
+    // }, 1000);
   };
   const ref = useRef<HTMLInputElement>(null);
   const handleClick = () => {
@@ -196,8 +263,8 @@ export function ConvertPageContent() {
             )}
           </Row> */}
           <div className="d-flex flex-row gap-2">
-            {results.map((x) => (
-              <FileCard {...x} />
+            {convertionResults.data?.map((x) => (
+              <FileCard id={x?.id ?? ''} name={x.convertedFromName ?? ''} />
             ))}
           </div>
         </Col>

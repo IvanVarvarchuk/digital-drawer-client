@@ -2,7 +2,6 @@ import reducer, {
   ConvertionReducerState,
   ConvertionReducerActionType,
   FileItem,
-  TargetFileFormat,
 } from './convertion-reducer';
 
 describe('reducer', () => {

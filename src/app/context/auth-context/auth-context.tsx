@@ -37,6 +37,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const profileQuery = useProfileGETQuery({
     enabled: !!accessToken,
+    refetchOnWindowFocus: false,
   })
 
   const login = async (email: string, password: string) => {

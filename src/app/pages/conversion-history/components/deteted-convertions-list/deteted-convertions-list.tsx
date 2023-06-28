@@ -6,13 +6,14 @@ import {
   useTable,
 } from 'react-table';
 import { FormControl, Table } from 'react-bootstrap';
-import { TargetFileFormat } from '../../../../pages/convert/state/convertion-reducer/convertion-reducer';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { useConversionAllQuery } from '../../../../../api/axios-client/Query';
 import useConvertionHistoryState from '../../state/use-convertion-history-state/use-convertion-history-state';
 import { FileConvertion } from '../../../FileConvertion';
 import { DeleteActionButtons } from '../action-buttons/action-buttons';
 import formatColumn from '../../utils/formatColumn';
+import * as Types from '../../../../../api/axios-client';
+
 type SearchFilterProps = {
   filter: string,
   setFilter: (filter: string) => void
@@ -57,7 +58,7 @@ const useDetetedConvertionTable = (data: FileConvertion[]) => {
         Header: 'Target Format',
         accessor: 'fileFormat',
         Cell: ({ row: { original } }) => {
-          return (<span>{formatColumn(original?.fileFormat ?? TargetFileFormat.DXF)}</span>);
+          return (<span>{formatColumn(original?.fileFormat ?? Types.TargetFileFormat._0)}</span>);
 
         },
       },

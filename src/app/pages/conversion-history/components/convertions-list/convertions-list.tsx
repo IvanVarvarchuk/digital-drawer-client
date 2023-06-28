@@ -7,7 +7,6 @@ import {
   useTable,
 } from 'react-table';
 import { Table } from 'react-bootstrap';
-import { TargetFileFormat } from '../../../../pages/convert/state/convertion-reducer/convertion-reducer';
 import { useConversionAllQuery } from '../../../../../api/axios-client/Query';
 import * as Types from '../../../../../api/axios-client';
 // import { FileConvertion } from '../../FileConvertion';
@@ -51,7 +50,7 @@ export const useFileConvertionTable = (data: FileConvertion[]) => {
         accessor: 'fileFormat',
         Cell: ({ row: { original } }) => {
           return (
-            <span>{formatColumn(original?.fileFormat ?? TargetFileFormat.DXF)}</span>
+            <span>{formatColumn(original?.fileFormat ?? Types.TargetFileFormat._0)}</span>
           );
         },
       },

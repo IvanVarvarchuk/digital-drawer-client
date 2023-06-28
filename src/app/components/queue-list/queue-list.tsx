@@ -3,7 +3,7 @@ import { Button, Card, Form } from 'react-bootstrap';
 import Spinner from 'react-bootstrap/Spinner';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import useConvertionState from '../../pages/convert/state/use-convertion-state/use-convertion-state';
-import { TargetFileFormat } from '../../pages/convert/state/convertion-reducer/convertion-reducer';
+import * as Types from '../../../api/axios-client';
 // import useConvertionState from 'src/app/pages/convert/state/use-convertion-state/use-convertion-state';
 
 /* eslint-disable-next-line */
@@ -24,10 +24,10 @@ export function QueueList({ handleOnSubmit }: QueueListProps) {
   };
 
   const handleSelectionChanged = (index: number, value: string) => {
-    const optionMapping: Record<string, TargetFileFormat> = {
-      "0":TargetFileFormat.DXF, 
-      "1":TargetFileFormat.IFC, 
-      "2":TargetFileFormat.SVG, 
+    const optionMapping: Record<string, Types.TargetFileFormat> = {
+      "0":Types.TargetFileFormat._0, 
+      "1":Types.TargetFileFormat._1, 
+      "2":Types.TargetFileFormat._2, 
     } 
     dispatch({ type: 'SET_CONVERSION_FORMAT', payload: {
       index,
@@ -77,9 +77,9 @@ export function QueueList({ handleOnSubmit }: QueueListProps) {
                                 className={styles.select}
                               >
                                 <option>Select file extension</option>
-                                <option defaultChecked value={TargetFileFormat.DXF}>dxf</option>
-                                <option value={TargetFileFormat.IFC}>ifc</option>
-                                <option value={TargetFileFormat.SVG}>svg</option>
+                                <option defaultChecked value={Types.TargetFileFormat._0}>dxf</option>
+                                <option value={Types.TargetFileFormat._1}>ifc</option>
+                                <option value={Types.TargetFileFormat._2}>svg</option>
                               </Form.Select>
                               <div className={styles.actions}>
                                 <Button disabled={state.isLoading} onClick={() => dispatch({ type: 'REMOVE_FILE',  payload: index})} variant="danger">
