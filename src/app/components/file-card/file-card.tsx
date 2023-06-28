@@ -18,23 +18,24 @@ export function FileCard({ id, name }: FileCardProps) {
     refetchOnWindowFocus: false,
     enabled: false,
   });
-  function downloadFunc() {
-    refetch();
-  }
-
-  useEffect(() => {
+  const downloadFunc = async()=>{
+    await refetch();
     if (data !== undefined && data !== null) {
       const anchor = document.createElement('a');
-      const link = URL.createObjectURL(data?.data ?? new Blob());
-
-      anchor.setAttribute('href', link);
-      anchor.setAttribute('download', '');
+      
+      const json = JSON.stringify(data.data),
+      blob = new Blob([json], {type: "octet/stream"}),
+      url = window.URL.createObjectURL(blob);
+      anchor.setAttribute('href', url);
+      anchor.setAttribute('download', data.fileName?? name);
       document.body.appendChild(anchor);
       anchor.click();
       anchor.parentNode?.removeChild(anchor);
-      URL.revokeObjectURL(link);
+      URL.revokeObjectURL(url);
+
     }
-  }, [data]);
+  }
+
   return (
     <Card className={styles.card}>
       <Card.Body className={styles.cardBody}>

@@ -50,8 +50,6 @@ const UpploadButton = ({ content, onClick }: IUpploadButtonProps) => {
 type ConvertionResult = Record<'name' | 'link', string>;
 export function ConvertPageContent() {
   const { state, dispatch } = useConvertionState();
-  const [progress, setProgress] = useState(0);
-  const [results, setResults] = useState<ConvertionResult[]>([]);
   const createConvertionTaskMutation = useConversionMutation({
     onSuccess: (id) => dispatch({ type: 'SET_TASK_ID', payload: id }),
   });
@@ -74,37 +72,23 @@ export function ConvertPageContent() {
     });
   }, [convertionResults.data, dispatch, state.queue]);
 
-  const toBase64 = (file: File): string => {
-    let result  = '';
-    if (file) {
-      const filereader = new FileReader();
-      filereader.readAsDataURL(file);
-      filereader.onload = function (evt) {
-        const base64 = evt?.target?.result ?? '';
-        result = base64.toString();
-        return base64;
+  
+  function encodeFileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        resolve(base64String);
       };
-    }
-    return result;
-  };
-  // new Promise((resolve, reject) => {
-  //   const reader = new FileReader();
-  //   reader.readAsDataURL(file);
-  //   reader.onload = () => {
-  //     let encoded =
-  //       reader?.result?.toString().replace(/^data:(.*,)?/, '') ?? '';
-  //     if (encoded.length % 4 > 0) {
-  //       encoded += '='.repeat(4 - (encoded.length % 4));
-  //     }
-  //     resolve(encoded);
-  //   };
-  //   reader.onerror = error => reject(error);
-  // });
-
-  const formatRequest = (): Types.CreateConversionRequest[] => {
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+  
+  const formatRequest = async(): Promise<Types.CreateConversionRequest[]> => {
     const result: Types.CreateConversionRequest[] = [];
     for (const f of state.queue) {
-      const b64 = toBase64(f.file);
+      const b64 = await encodeFileToBase64(f.file);
       result.push(
         new Types.CreateConversionRequest({
           fileContent: b64,
@@ -264,7 +248,7 @@ export function ConvertPageContent() {
           </Row> */}
           <div className="d-flex flex-row gap-2">
             {convertionResults.data?.map((x) => (
-              <FileCard id={x?.id ?? ''} name={x.convertedFromName ?? ''} />
+              <FileCard id={x?.id ?? ''} name={x.fileName ?? ''} />
             ))}
           </div>
         </Col>
