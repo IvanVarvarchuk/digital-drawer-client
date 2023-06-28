@@ -20,7 +20,7 @@ export function FileCard({ name, link }: FileCardProps) {
     anchor.setAttribute('download', '');
     document.body.appendChild(anchor);
     anchor.click();
-    // anchor.parentNode.removeChild(anchor);
+    anchor.parentNode?.removeChild(anchor);
   }
   const handleClick = () => {
     ancorRef.current?.click();

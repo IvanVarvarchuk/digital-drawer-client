@@ -1,4 +1,5 @@
-import { FileConvertion, TargetFileFormat } from '../../../FileConvertion';
+import { TargetFileFormat } from '../../../../../api/axios-client';
+import { FileConvertion } from '../../../FileConvertion';
 
 export type FileItem = {
   file: File;
@@ -48,7 +49,15 @@ const conversionHistoryReducer = (
         ),
       };
     case 'DOWNLOAD_FILE': {
-      
+      const file = state.files.find((file) => file.id === action.payload);
+      if (file !== undefined) {
+        const anchor = document.createElement('a');
+        anchor.setAttribute('href', file?.link);
+        anchor.setAttribute('download', '');
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.parentNode?.removeChild(anchor);
+      }
       return state;
     }
     case 'CANCEL_DELETE_FILE': {

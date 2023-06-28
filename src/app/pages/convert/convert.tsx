@@ -186,15 +186,15 @@ export function ConvertPageContent() {
       </Row>
       <Row className="row-eq-height min-vh-40">
         <Col sm={12} className="d-flex flex-column gap-2">
-          <Row>
-            <h4>Conversion Results:</h4>
+          <h4>Conversion Results:</h4>
+          {/* <Row>
             {progress > 0 && progress < 100 && (
               <div className="mt-5 py-3 px-2 gap-2">
-                <h4>Conversion Progress:</h4>
+                <h5>Conversion Progress:</h5>
                 <ProgressBar now={progress} label={`${progress}%`} />
               </div>
             )}
-          </Row>
+          </Row> */}
           <div className="d-flex flex-row gap-2">
             {results.map((x) => (
               <FileCard {...x} />

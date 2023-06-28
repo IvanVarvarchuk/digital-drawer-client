@@ -1,22 +1,26 @@
-import styles from './deteted-convertions-list.module.css';
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Column,
   useFlexLayout,
-  usePagination,
   useSortBy,
   useTable,
 } from 'react-table';
-import { Table, Button } from 'react-bootstrap';
+import { FormControl, Table } from 'react-bootstrap';
 import { TargetFileFormat } from '../../../../pages/convert/state/convertion-reducer/convertion-reducer';
 // eslint-disable-next-line @nx/enforce-module-boundaries
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCancel, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useConversionAllQuery } from '../../../../../api/axios-client/Query';
 import useConvertionHistoryState from '../../state/use-convertion-history-state/use-convertion-history-state';
 import { FileConvertion } from '../../../FileConvertion';
 import { DeleteActionButtons } from '../action-buttons/action-buttons';
+import formatColumn from '../../utils/formatColumn';
+type SearchFilterProps = {
+  filter: string,
+  setFilter: (filter: string) => void
+}
 
+const SearchFilter: React.FC<SearchFilterProps> = ({filter, setFilter}) => {
+  return <FormControl type='text' value={filter} onChange={(e) => setFilter(e.target.value)}/>
+} 
 const useDetetedConvertionTable = (data: FileConvertion[]) => {
   const columns = React.useMemo<Column<FileConvertion>[]>(
     () => [
@@ -24,7 +28,7 @@ const useDetetedConvertionTable = (data: FileConvertion[]) => {
         Header: 'Item Number',
         accessor: 'id',
         Cell: ({ row: { index } }) => {
-          return <span>{index}</span>;
+          return <span>{index+1}</span>;
         },
       },
       {
@@ -53,7 +57,8 @@ const useDetetedConvertionTable = (data: FileConvertion[]) => {
         Header: 'Target Format',
         accessor: 'fileFormat',
         Cell: ({ row: { original } }) => {
-          return <span>{TargetFileFormat[original.fileFormat]}</span>;
+          return (<span>{formatColumn(original?.fileFormat ?? TargetFileFormat.DXF)}</span>);
+
         },
       },
       {

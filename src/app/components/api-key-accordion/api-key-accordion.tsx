@@ -34,24 +34,19 @@ export interface ApiKeyAccordionProps {
 export type ModalProps = {
   isVisible: boolean;
   handleClose: () => void;
+  submit: (command: CreateApiKeyCommand) => Promise<void>
 };
 
 const CreateApikeyModal: React.FC<ModalProps> = ({
   isVisible,
   handleClose,
+  submit
 }) => {
   const {
     register,
     formState: { errors },
     handleSubmit,
   } = useForm<Types.ICreateApiKeyCommand>();
-  const queryClient = useQueryClient();
-  const createKeyMutation = useApiKeyPOSTMutation({
-    onSuccess: () => queryClient.invalidateQueries({queryKey: [...apiKeyAllQueryKey()]})
-  })
-  const submit = (values: Types.ICreateApiKeyCommand) => {
-    createKeyMutation.mutate(new CreateApiKeyCommand(values));
-  }
   return (
     <Modal
       show={isVisible}
@@ -60,10 +55,10 @@ const CreateApikeyModal: React.FC<ModalProps> = ({
       onHide={handleClose}
     >
       <Modal.Header closeButton>
-        <Modal.Title>Edit API key</Modal.Title>
+        <Modal.Title>Create API key</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form onSubmit={handleSubmit(submit)}>
+        <Form onSubmit={handleSubmit((values) => submit(new CreateApiKeyCommand(values)))}>
           <Form.Label htmlFor="name">Name</Form.Label>
           <Form.Control
             type="text"
@@ -135,11 +130,6 @@ const ApiKeyAccordion: React.FC = () => {
     hideModal: hideConfirmModal,
     showModal: showConfirmModal,
   } = useModal();
-  const {
-    isModalVisible: editModalVsisble,
-    hideModal: hideEditModal,
-    showModal: showEditModal,
-  } = useModal();
 
   function hideKey(input: string): string {
     const firstFourChars = input.slice(0, 4);
@@ -153,6 +143,9 @@ const ApiKeyAccordion: React.FC = () => {
   const revokeKeyMutation = useApiKeyDELETEMutation(selctedApiKey?.id ?? '', {
     onSuccess: () => queryClient.invalidateQueries({queryKey: [...apiKeyAllQueryKey()]})
   });
+  const createKeyMutation = useApiKeyPOSTMutation({
+    onSuccess: () => queryClient.invalidateQueries({queryKey: [...apiKeyAllQueryKey()]})
+  })
   return (
     <Accordion defaultActiveKey="0" flush>
       <Accordion.Item eventKey="0">
@@ -200,13 +193,19 @@ const ApiKeyAccordion: React.FC = () => {
           </Button>
         </Accordion.Body>
       </Accordion.Item>
-      <CreateApikeyModal isVisible={isModalVisible} handleClose={hideModal} />
+      <CreateApikeyModal isVisible={isModalVisible} handleClose={hideModal} submit={async (command) => {
+        await createKeyMutation.mutateAsync(command);
+        hideModal();
+      }
+      } />
       <ConfirmModal
         showModal={confirmModalVsisble}
         title={'Revoke API key'}
         action={'revoke this API key'}
+        description={'This action is irreverable!'}
         handleConfirm={() => {
           selctedApiKey && revokeKeyMutation.mutate();
+          hideConfirmModal();
         }}
         handleClose={hideConfirmModal}
       />

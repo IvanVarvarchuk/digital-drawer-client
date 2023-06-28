@@ -234,13 +234,13 @@ export function conversionMutationKey(): MutationKey {
  * @param body (optional) 
  * @return Success
  */
-export function useConversionMutation<TContext>(options?: Omit<UseMutationOptions<string, unknown, Types.CreateConversionCommand[], TContext>, 'mutationKey' | 'mutationFn'>): UseMutationResult<string, unknown, Types.CreateConversionCommand[], TContext> {
+export function useConversionMutation<TContext>(options?: Omit<UseMutationOptions<string, unknown, Types.CreateConversionRequest[], TContext>, 'mutationKey' | 'mutationFn'>): UseMutationResult<string, unknown, Types.CreateConversionRequest[], TContext> {
   const key = conversionMutationKey();
   
   const metaContext = useContext(QueryMetaContext);
   options = addMetaToOptions(options, metaContext);
   
-      return useMutation((body: Types.CreateConversionCommand[]) => Client.conversion(body), {...options, mutationKey: key});
+      return useMutation((body: Types.CreateConversionRequest[]) => Client.conversion(body), {...options, mutationKey: key});
 }
   
     
@@ -749,75 +749,4 @@ export function useProfilePATCHMutation<TContext>(options?: Omit<UseMutationOpti
   options = addMetaToOptions(options, metaContext);
   
       return useMutation((body: Types.UpdateProfileInfoCommand) => Client.profilePATCH(body), {...options, mutationKey: key});
-}
-  
-    
-export function getWeatherForecastUrl(): string {
-  let url_ = getBaseUrl() + "/WeatherForecast";
-  url_ = url_.replace(/[?&]$/, "");
-  return url_;
-}
-
-let getWeatherForecastDefaultOptions: UseQueryOptions<Types.WeatherForecast[], unknown, Types.WeatherForecast[]> = {
-  queryFn: __getWeatherForecast,
-};
-export function getGetWeatherForecastDefaultOptions(): UseQueryOptions<Types.WeatherForecast[], unknown, Types.WeatherForecast[]> {
-  return getWeatherForecastDefaultOptions;
-};
-export function setGetWeatherForecastDefaultOptions(options: UseQueryOptions<Types.WeatherForecast[], unknown, Types.WeatherForecast[]>) {
-  getWeatherForecastDefaultOptions = options;
-}
-
-export function getWeatherForecastQueryKey(): QueryKey;
-export function getWeatherForecastQueryKey(...params: any[]): QueryKey {
-  return trimArrayEnd([
-      'Client',
-      'getWeatherForecast',
-    ]);
-}
-function __getWeatherForecast() {
-  return Client.getWeatherForecast(
-    );
-}
-
-/**
- * @return Success
- */
-export function useGetWeatherForecastQuery<TSelectData = Types.WeatherForecast[], TError = unknown>(options?: UseQueryOptions<Types.WeatherForecast[], TError, TSelectData>, axiosConfig?: Partial<AxiosRequestConfig>): UseQueryResult<TSelectData, TError>;
-export function useGetWeatherForecastQuery<TSelectData = Types.WeatherForecast[], TError = unknown>(...params: any []): UseQueryResult<TSelectData, TError> {
-  let options: UseQueryOptions<Types.WeatherForecast[], TError, TSelectData> | undefined = undefined;
-  let axiosConfig: AxiosRequestConfig |undefined;
-  
-
-  options = params[0] as any;
-  axiosConfig = params[1] as any;
-
-  const metaContext = useContext(QueryMetaContext);
-  options = addMetaToOptions(options, metaContext);
-  if (axiosConfig) {
-    options = options ?? { } as any;
-    options!.meta = { ...options!.meta, axiosConfig };
-  }
-
-  return useQuery<Types.WeatherForecast[], TError, TSelectData>({
-    queryFn: __getWeatherForecast,
-    queryKey: getWeatherForecastQueryKey(),
-    ...getWeatherForecastDefaultOptions as unknown as UseQueryOptions<Types.WeatherForecast[], TError, TSelectData>,
-    ...options,
-  });
-}
-/**
- * @return Success
- */
-export function setGetWeatherForecastData(queryClient: QueryClient, updater: (data: Types.WeatherForecast[] | undefined) => Types.WeatherForecast[], ) {
-  queryClient.setQueryData(getWeatherForecastQueryKey(),
-    updater
-  );
-}
-
-/**
- * @return Success
- */
-export function setGetWeatherForecastDataByQueryId(queryClient: QueryClient, queryKey: QueryKey, updater: (data: Types.WeatherForecast[] | undefined) => Types.WeatherForecast[]) {
-  queryClient.setQueryData(queryKey, updater);
 }

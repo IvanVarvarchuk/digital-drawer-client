@@ -2,9 +2,15 @@ import { Button, Container, Row, Col } from 'react-bootstrap';
 import styles from './home.module.css';
 import LoginModal from '../../components/login-modal/login-modal';
 import { useBoolean } from 'usehooks-ts';
+import { useModal } from '../../hooks/use-modal/use-modal';
+import useAuth from '../../hooks/use-auth/use-auth';
+import { Link } from 'react-router-dom';
+import { routes } from 'src/app/config/routes';
 
 function Home() {
-  const {value: isModalVisible, setFalse: hide, setTrue: show } = useBoolean(false);
+  const { isModalVisible, showModal, hideModal } = useModal();
+  const { isAuthenticated } = useAuth();
+
   return (
     <Row md={2}>
       <Col>
@@ -18,13 +24,20 @@ function Home() {
             complex designs or simple sketches, we've got you covered.
             Experience seamless and accurate file conversions with our
             easy-to-use interface. Start converting your architectural drawings
-            today and unlock the full potential of your designs in the digital
-            realm.
+            today.
           </p>
           <p style={{ display: 'flex', alignItems: 'center' }}>
-            <Button size="lg" variant="dark" onClick={show}>
-              Log in
-            </Button>
+            {isAuthenticated ? (
+              <Link to={routes.convert}>
+                <Button size="lg" variant="dark">
+                  Convert files
+                </Button>
+              </Link>
+            ) : (
+              <Button size="lg" variant="dark" onClick={showModal}>
+                Log in
+              </Button>
+            )}
           </p>
         </Col>
       </Col>
@@ -34,7 +47,7 @@ function Home() {
         src="./buildingsLanding.jpg"
         style={{ objectFit: 'scale-down', zIndex: -1 }}
       />
-      <LoginModal authMode handleClose={hide} showModal={isModalVisible}/>
+      <LoginModal authMode handleClose={hideModal} showModal={isModalVisible} />
     </Row>
   );
 }

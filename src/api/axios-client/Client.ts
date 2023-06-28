@@ -327,7 +327,7 @@ function processRegister(response: AxiosResponse): Promise<Types.AuthenticationR
  * @param body (optional) 
  * @return Success
  */
-export function conversion(body?: Types.CreateConversionCommand[] | undefined, config?: AxiosRequestConfig | undefined): Promise<string> {
+export function conversion(body?: Types.CreateConversionRequest[] | undefined, config?: AxiosRequestConfig | undefined): Promise<string> {
     let url_ = getBaseUrl() + "/api/Conversion";
       url_ = url_.replace(/[?&]$/, "");
 
@@ -904,65 +904,6 @@ function processProfilePATCH(response: AxiosResponse): Promise<void> {
     }
     return Promise.resolve<void>(null as any);
 }
-
-/**
- * @return Success
- */
-export function getWeatherForecast(config?: AxiosRequestConfig | undefined): Promise<Types.WeatherForecast[]> {
-    let url_ = getBaseUrl() + "/WeatherForecast";
-      url_ = url_.replace(/[?&]$/, "");
-
-    let options_: AxiosRequestConfig = {
-        ..._requestConfigGetWeatherForecast,
-        ...config,
-        method: "GET",
-        url: url_,
-        headers: {
-            "Accept": "text/plain"
-        }
-    };
-
-    return getAxios().request(options_).catch((_error: any) => {
-        if (isAxiosError(_error) && _error.response) {
-            return _error.response;
-        } else {
-            throw _error;
-        }
-    }).then((_response: AxiosResponse) => {
-        return processGetWeatherForecast(_response);
-    });
-}
-
-function processGetWeatherForecast(response: AxiosResponse): Promise<Types.WeatherForecast[]> {
-    const status = response.status;
-    let _headers: any = {};
-    if (response.headers && typeof response.headers === "object") {
-        for (let k in response.headers) {
-            if (response.headers.hasOwnProperty(k)) {
-                _headers[k] = response.headers[k];
-            }
-        }
-    }
-    if (status === 200) {
-        const _responseText = response.data;
-        let result200: any = null;
-        let resultData200  = _responseText;
-        if (Array.isArray(resultData200)) {
-            result200 = [] as any;
-            for (let item of resultData200)
-                result200!.push(Types.WeatherForecast.fromJS(item));
-        }
-        else {
-            result200 = <any>null;
-        }
-        return Promise.resolve<Types.WeatherForecast[]>(result200);
-
-    } else if (status !== 200 && status !== 204) {
-        const _responseText = response.data;
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-    }
-    return Promise.resolve<Types.WeatherForecast[]>(null as any);
-}
 let _requestConfigApiKeyPOST: Partial<AxiosRequestConfig> | null;
 export function getApiKeyPOSTRequestConfig() {
   return _requestConfigApiKeyPOST;
@@ -1115,15 +1056,4 @@ export function setProfilePATCHRequestConfig(value: Partial<AxiosRequestConfig>)
 }
 export function patchProfilePATCHRequestConfig(patch: (value: Partial<AxiosRequestConfig>) => Partial<AxiosRequestConfig>) {
   _requestConfigProfilePATCH = patch(_requestConfigProfilePATCH ?? {});
-}
-
-let _requestConfigGetWeatherForecast: Partial<AxiosRequestConfig> | null;
-export function getGetWeatherForecastRequestConfig() {
-  return _requestConfigGetWeatherForecast;
-}
-export function setGetWeatherForecastRequestConfig(value: Partial<AxiosRequestConfig>) {
-  _requestConfigGetWeatherForecast = value;
-}
-export function patchGetWeatherForecastRequestConfig(patch: (value: Partial<AxiosRequestConfig>) => Partial<AxiosRequestConfig>) {
-  _requestConfigGetWeatherForecast = patch(_requestConfigGetWeatherForecast ?? {});
 }

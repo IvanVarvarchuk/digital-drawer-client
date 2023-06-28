@@ -150,14 +150,13 @@ export interface ICreateApiKeyCommandDto {
     key?: string | null;
 }
 
-export class CreateConversionCommand implements ICreateConversionCommand {
-    convertionTaskId?: string;
+export class CreateConversionRequest implements ICreateConversionRequest {
     fileContent?: string | null;
     fileName?: string | null;
     convertedFileName?: string | null;
     fileTargetFormat?: TargetFileFormat;
 
-    constructor(data?: ICreateConversionCommand) {
+    constructor(data?: ICreateConversionRequest) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -168,7 +167,6 @@ export class CreateConversionCommand implements ICreateConversionCommand {
 
     init(_data?: any) {
         if (_data) {
-            this.convertionTaskId = _data["convertionTaskId"];
             this.fileContent = _data["fileContent"];
             this.fileName = _data["fileName"];
             this.convertedFileName = _data["convertedFileName"];
@@ -176,16 +174,15 @@ export class CreateConversionCommand implements ICreateConversionCommand {
         }
     }
 
-    static fromJS(data: any): CreateConversionCommand {
+    static fromJS(data: any): CreateConversionRequest {
         data = typeof data === 'object' ? data : {};
-        let result = new CreateConversionCommand();
+        let result = new CreateConversionRequest();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["convertionTaskId"] = this.convertionTaskId;
         data["fileContent"] = this.fileContent;
         data["fileName"] = this.fileName;
         data["convertedFileName"] = this.convertedFileName;
@@ -194,8 +191,7 @@ export class CreateConversionCommand implements ICreateConversionCommand {
     }
 }
 
-export interface ICreateConversionCommand {
-    convertionTaskId?: string;
+export interface ICreateConversionRequest {
     fileContent?: string | null;
     fileName?: string | null;
     convertedFileName?: string | null;
@@ -495,66 +491,6 @@ export interface IUpdateProfileInfoCommand {
     currentPassword?: string | null;
     newPassword?: string | null;
 }
-
-export class WeatherForecast implements IWeatherForecast {
-    date?: Date;
-    temperatureC?: number;
-    readonly temperatureF?: number;
-    summary?: string | null;
-
-    constructor(data?: IWeatherForecast) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.date = _data["date"] ? parseDateOnly(_data["date"].toString()) : <any>null;
-            this.temperatureC = _data["temperatureC"];
-            (<any>this).temperatureF = _data["temperatureF"];
-            this.summary = _data["summary"];
-        }
-    }
-
-    static fromJS(data: any): WeatherForecast {
-        data = typeof data === 'object' ? data : {};
-        let result = new WeatherForecast();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["date"] = this.date && formatDate(this.date);
-        data["temperatureC"] = this.temperatureC;
-        data["temperatureF"] = this.temperatureF;
-        data["summary"] = this.summary;
-        return data;
-    }
-}
-
-export interface IWeatherForecast {
-    date?: Date;
-    temperatureC?: number;
-    temperatureF?: number;
-    summary?: string | null;
-}
-
-export function formatDate(d: Date) {
-    return d.getFullYear() + '-' + 
-        (d.getMonth() < 9 ? ('0' + (d.getMonth()+1)) : (d.getMonth()+1)) + '-' +
-        (d.getDate() < 10 ? ('0' + d.getDate()) : d.getDate());
-}
-
-function parseDateOnly(s: string) {
-    const date = new Date(s);
-    return new Date(date.getTime() + 
-        date.getTimezoneOffset() * 60000);
-}
 //-----/CustomTypes.File-----
 
 export interface FileResponse {
@@ -694,7 +630,6 @@ export function initPersister() {
   addResultTypeFactory('Client___conversionAll', (data: any) => { const result = new GetConversionQueryDto(); result.init(data); return result; });
   addResultTypeFactory('Client___convertionResults', (data: any) => { const result = new GetConversionQueryDto(); result.init(data); return result; });
   addResultTypeFactory('Client___profileGET', (data: any) => { const result = new ProfileInfoDto(); result.init(data); return result; });
-  addResultTypeFactory('Client___getWeatherForecast', (data: any) => { const result = new WeatherForecast(); result.init(data); return result; });
 
 
 }
