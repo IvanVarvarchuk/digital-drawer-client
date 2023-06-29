@@ -16,6 +16,7 @@ import useConvertionState, {
 } from './state/use-convertion-state/use-convertion-state';
 import FileCard from '../../components/file-card/file-card';
 import { files } from '../fakeData';
+import { FileItem } from './state/convertion-reducer/convertion-reducer';
 
 export default function Convert() {
   return (
@@ -103,32 +104,18 @@ export function ConvertPageContent() {
     }
   };
 
-  const updateResults = (i: number) => {
+  const updateResults = (item: FileItem, i: number) => {
     setResults((prev) => [...prev, filesToDownload[i]]);
     dispatch({ type: 'REMOVE_FILE', payload: 0 });
   };
   const handleConvert = () => {
+    const queue = state.queue.slice();
     // Logic to add file to conversion queue and initiate conversion
-    dispatch({ type: 'REMOVE_FILE', payload: 0 });
-    setResults([]);
-    setProgress(0);
-    setTimeout(() => {
-      updateResults(0);
-      // Mock conversion progress update
-      setProgress(25);
+    queue.forEach((element, i) => {
       setTimeout(() => {
-        updateResults(1);
-        setProgress(50);
-        setTimeout(() => {
-          updateResults(2);
-          setProgress(75);
-          setTimeout(() => {
-            updateResults(3);
-            setProgress(100);
-          }, 1000);
-        }, 800);
-      }, 800);
-    }, 1000);
+        updateResults(element, i);
+      }, 500+500*i);      
+    });
   };
   const ref = useRef<HTMLInputElement>(null);
   const handleClick = () => {

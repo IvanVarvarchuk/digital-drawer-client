@@ -13,7 +13,6 @@ export interface FileCardProps {
 }
 
 export function FileCard({ name, link }: FileCardProps) {
-  const ancorRef = React.useRef<HTMLAnchorElement>(null);
   function downloadFunc() {
     const anchor = document.createElement('a');
     anchor.setAttribute('href', link);
@@ -22,9 +21,7 @@ export function FileCard({ name, link }: FileCardProps) {
     anchor.click();
     anchor.parentNode?.removeChild(anchor);
   }
-  const handleClick = () => {
-    ancorRef.current?.click();
-  };
+
   return (
     <Card className={styles.card}>
         <Card.Body className={styles.cardBody}>
